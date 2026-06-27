@@ -18,55 +18,54 @@ public class HyperloopBookingController {
 
     private void start() {
         hyperloopView.showWelcomeMessage();
-        while(true){
-        try {
-            HyperloopBookingView.RouteDetails routeDetails = hyperloopView.getRouteDetails();
-            hyperloopModel.addStartLocation(routeDetails.getStartLocation());
-            hyperloopModel.addRoutes(routeDetails.getRoutes());
-            break;
-        } catch (IllegalArgumentException e) {
-            hyperloopView.showMessage(e.getMessage());
+        while (true) {
+            try {
+                HyperloopBookingView.RouteDetails routeDetails = hyperloopView.getRouteDetails();
+                hyperloopModel.addStartLocation(routeDetails.getStartLocation());
+                hyperloopModel.addRoutes(routeDetails.getRoutes());
+                break;
+            } catch (IllegalArgumentException e) {
+                hyperloopView.showMessage("Error: " + e.getMessage());
+            }
         }
-    }
         while (true) {
             try {
                 String command = hyperloopView.getCommand();
                 String commandParts[] = command.split("\\s+");
                 switch (commandParts[0]) {
                     case "ADD_PASSENGER":
-                        if (commandParts.length < 2)
-                            throw new IllegalArgumentException("Number of Pods to start is missing");
+                        if (commandParts.length < 2) {
+                            throw new IllegalArgumentException("Passenger count is missing.");
+                        }
                         List<Passenger> passengers = new ArrayList<>();
                         int count;
                         try {
                             count = Integer.parseInt(commandParts[1]);
-
                         } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException("Passenger Count should be a number");
+                            throw new IllegalArgumentException("Passenger count must be a valid integer.");
                         }
                         if (count <= 0) {
-                            throw new IllegalArgumentException("Count should be greater than zero");
+                            throw new IllegalArgumentException("Passenger count must be greater than zero.");
                         }
                         for (int i = 0; i < count; i++) {
                             String passenger = hyperloopView.getpassengerDetails();
                             passengers.add(parsePassenger(passenger));
                         }
                         hyperloopModel.addPassengers(passengers);
-
                         break;
-                    case "START_POD":
-                        if (commandParts.length < 2)
-                            throw new IllegalArgumentException("Number of Pods to start is missing");
-                        int numberOfPods;
 
+                    case "START_POD":
+                        if (commandParts.length < 2) {
+                            throw new IllegalArgumentException("Number of pods to start is missing.");
+                        }
+                        int numberOfPods;
                         try {
                             numberOfPods = Integer.parseInt(commandParts[1]);
-
                         } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException("Number of Pods to start should be a number");
+                            throw new IllegalArgumentException("Number of pods to start must be a valid integer.");
                         }
                         if (numberOfPods <= 0) {
-                            throw new IllegalArgumentException("Number of Pods should be greater than zero");
+                            throw new IllegalArgumentException("Number of pods must be greater than zero.");
                         }
                         for (int i = 0; i < numberOfPods; i++) {
                             Passenger passenger = hyperloopModel.startNextPod();
@@ -78,38 +77,38 @@ public class HyperloopBookingController {
                             }
                         }
                         break;
+
                     case "PRINT_Q":
                         hyperloopView.printPassengerList(hyperloopModel.getRemainingPassengersList());
                         break;
+
                     case "EXIT":
-                        hyperloopView.showMessage("Thank you");
+                        hyperloopView.showMessage("Thank you for using Hyperloop Booking System!");
                         return;
-                        
+
                     default:
-                        throw new IllegalArgumentException("INVALID COMMAND");
+                        throw new IllegalArgumentException("Invalid command entered.");
                 }
             } catch (IllegalArgumentException | IllegalStateException e) {
-                hyperloopView.showMessage(e.getMessage());
+                hyperloopView.showMessage("Error: " + e.getMessage());
             }
         }
-
     }
 
     private Passenger parsePassenger(String passenger) {
-
         String[] passengerDetails = passenger.split("\\s+");
         if (passengerDetails.length < 3) {
-            throw new IllegalArgumentException("Passenger details should be NAME AGE DESTINATION");
+            throw new IllegalArgumentException("Passenger details must be formatted as: NAME AGE DESTINATION");
         }
         int age;
         try {
             age = Integer.parseInt(passengerDetails[1]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Passenger age should be a number");
+            throw new IllegalArgumentException("Passenger age must be a valid integer.");
         }
-        if(!hyperloopModel.isValidRoute(passengerDetails[2]))
-            throw new IllegalArgumentException("Destination is not available in routes");
+        if (!hyperloopModel.isValidRoute(passengerDetails[2])) {
+            throw new IllegalArgumentException("Destination is not present in the route network.");
+        }
         return new Passenger(passengerDetails[0], age, passengerDetails[2]);
-
     }
 }

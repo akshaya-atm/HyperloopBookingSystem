@@ -10,36 +10,32 @@ public class HyperloopBookingView {
 
     public void showWelcomeMessage() {
         System.out.println();
-        System.out.println();
-
         System.out.println("=========================================================");
-        System.out.println("        Welcome to hyperloop Booking System");
+        System.out.println("         Welcome to the Hyperloop Booking System");
         System.out.println("=========================================================");
         System.out.println();
-        System.out.println();
-
-        System.out.println("Initialize Routes");
+        System.out.println("--- Initialize Routes ---");
     }
 
     public RouteDetails getRouteDetails() {
-        System.out.print("Enter init command(INIT 7 A): ");
+        System.out.print("Enter initialization command (e.g., INIT 3 A): ");
         String[] initDetails = scanner.nextLine().trim().split("\\s+");
 
         if (initDetails.length < 3) {
-            throw new IllegalArgumentException("Init command should be INIT ROUTE_COUNT START_LOCATION");
+            throw new IllegalArgumentException("Initialization command format must be: INIT [route_count] [start_location]");
         }
         if (!initDetails[0].equals("INIT")) {
-            throw new IllegalArgumentException("First command should be INIT");
+            throw new IllegalArgumentException("The initialization command must start with 'INIT'.");
         }
 
         int routeCount;
         try {
             routeCount = Integer.parseInt(initDetails[1]);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Route count should be a number");
+            throw new IllegalArgumentException("Route count must be a valid integer.");
         }
         if (routeCount <= 0) {
-            throw new IllegalArgumentException("Route count should be greater than zero");
+            throw new IllegalArgumentException("Route count must be greater than zero.");
         }
 
         String startLocation = initDetails[2];
@@ -47,14 +43,14 @@ public class HyperloopBookingView {
 
         for (int i = 0; i < routeCount; i++) {
             while (true) {
-                System.out.println("Route " + (i + 1));
+                System.out.print("Enter Route " + (i + 1) + " (e.g., A B): ");
                 String route = scanner.nextLine().trim();
                 try {
                     validateRouteFormat(route);
                     routes.add(route);
                     break;
                 } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         }
@@ -64,14 +60,14 @@ public class HyperloopBookingView {
 
     private void validateRouteFormat(String route) {
         if (route.isEmpty()) {
-            throw new IllegalArgumentException("Route should not be empty");
+            throw new IllegalArgumentException("Route cannot be empty.");
         }
         String[] rts = route.split("\\s+");
         if (rts.length != 2) {
-            throw new IllegalArgumentException("Route should be FROM TO");
+            throw new IllegalArgumentException("Route must contain exactly two space-separated locations (e.g., 'A B').");
         }
         if (rts[0].equals(rts[1])) {
-            throw new IllegalArgumentException("Route cannot connect same location");
+            throw new IllegalArgumentException("Route cannot connect a location to itself.");
         }
     }
 
@@ -94,32 +90,36 @@ public class HyperloopBookingView {
     }
 
     public String getCommand() {
-        System.out.println("Enter the command");
-        System.out.println("To Add passsenger: 'ADD_PASSENGER X' X is number of passengers ");
-        System.out.println("To start a pod: 'START_POD X' X number of pods");
-        System.out.println("To Know the queue List: 'PRINT_Q'");
-        String command  =  scanner.nextLine().trim();
-        return command;
+        System.out.println("\n---------------------------------------------------------");
+        System.out.println("Available Commands:");
+        System.out.println("  - ADD_PASSENGER X  : Add X passengers to the queue");
+        System.out.println("  - START_POD X      : Start X pods for the next passengers");
+        System.out.println("  - PRINT_Q          : Print the current passenger queue");
+        System.out.println("  - EXIT             : Exit the application");
+        System.out.println("---------------------------------------------------------");
+        System.out.print("Enter command: ");
+        return scanner.nextLine().trim();
     }
+
     public void showMessage(String message){
         System.out.println(message);
         System.out.println();
     }
 
     public String getpassengerDetails() {
-        System.out.println( "Enter passenger Details  as NAME AGE Destination");
-        String passengerDetails = scanner.nextLine().trim();
-        return passengerDetails;
+        System.out.print("Enter passenger details (NAME AGE DESTINATION): ");
+        return scanner.nextLine().trim();
     }
 
     public void printPassengerList(List<Passenger> remainingPassengersList) {
-        if(remainingPassengersList.isEmpty()){
-            System.out.println("No more passengers");
+        if (remainingPassengersList.isEmpty()) {
+            System.out.println("No more passengers in the queue.");
         } else {
-        for(Passenger passenger:remainingPassengersList){
-            System.out.println(passenger);
+            System.out.println("Current Passenger Queue:");
+            for (Passenger passenger : remainingPassengersList) {
+                System.out.println("  - " + passenger);
+            }
         }
-    }
     }
 
     public void printPodResult(String passengerName, List<String> path) {
